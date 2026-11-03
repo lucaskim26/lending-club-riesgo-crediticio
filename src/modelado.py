@@ -107,8 +107,11 @@ def crear_modelo(tipo, params=None, con_macro=True, con_estado=True):
 # ---------------------------------------------------------------------------
 
 def cortes_temporales(fechas, anios_validacion):
-    """Para cada año de validación: entrenar con todo lo anterior y validar
-    con ese año (ventana creciente). Devuelve (año, índices_train, índices_val)."""
+    """Cortes retrospectivos por año de originación, con ventana creciente.
+
+    Devuelve (año, índices_train, índices_val). No comprueba cuándo se conoció
+    cada resultado final: no reconstruye un backtest operativo histórico.
+    """
     anio = fechas.dt.year.to_numpy()
     for a in anios_validacion:
         yield a, np.flatnonzero(anio < a), np.flatnonzero(anio == a)
