@@ -67,9 +67,22 @@ La primera vez tarda unos minutos y usa ~5 GB de memoria, porque lee el archivo 
 6. **Transformaciones:** variables nuevas, recorte de valores extremos, relleno de vacíos, misma escala y categorías pasadas a columnas 0/1. Todo lo que aprende de los datos se ajusta solo con train.
 7. **Resultado final del sistema:** una pérdida esperada por persona, PD × 51,7%. Es la pérdida de toda la vida del préstamo, no una tasa de interés.
 8. **Modelos (E03):** regresión logística, Random Forest y LightGBM, elegidos con validación por año dentro de train (2013, 2014 y 2015). Ganó **LightGBM**: en test tiene ROC-AUC 0,704, contra 0,683 de la nota de Lending Club en los mismos préstamos.
-9. **Desempleo por estado (BLS):** lo probamos, pero no mejora el modelo y quedó afuera del modelo final.
+9. **Desempleo por estado (BLS):** su aporte es despreciable: quitarlo reduce el AUC de validación de 0,6837 a 0,6836. Quedó afuera para simplificar, no porque perjudique el modelo.
 10. **Bandas:** 7 bandas con cortes definidos en train; en test el default sube de 4% (banda 1) a 57% (banda 7).
 11. **Modelo guardado:** `modelos/modelo_pd.joblib` (se carga con `src.modelado.cargar_modelo()`) y `modelos/modelo_pd.json` con los cortes, la severidad y las métricas.
+
+## Verificación sin entrenar
+
+El modelo guardado recibe **54 variables ya construidas** y las transforma en **102 columnas** para LightGBM. Se puede probar la carga e inferencia con cinco casos sintéticos sin descargar el dataset ni ejecutar los notebooks:
+
+```bash
+python -m pip install -r requirements-inference.txt
+python -m unittest discover -s tests -v
+```
+
+Usá un entorno aislado. La [guía de verificación de E03](docs/verificacion_e03.md) detalla las versiones originales y verificadas, el contrato de entrada, las pruebas y sus límites.
+
+**Alcance:** la evaluación es retrospectiva, con separación por fecha de originación; no reconstruye qué etiquetas estaban disponibles en cada fecha histórica. La selección de variables de E02 se hizo sobre todo train antes de los folds, aunque los parámetros del pipeline sí se ajustan dentro de cada corte. Test se mantuvo separado. Estas aclaraciones y la validación de pérdidas faltantes no reentrenan el modelo ni cambian los resultados guardados.
 
 ## Autores
 
